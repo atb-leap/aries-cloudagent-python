@@ -1,6 +1,7 @@
 """Manage in-memory profile interaction."""
 
 from collections import OrderedDict
+from pathlib import Path
 from typing import Any, Mapping, Type
 from weakref import ref
 
@@ -144,3 +145,13 @@ class InMemoryProfileManager(ProfileManager):
     ) -> Profile:
         """Open an instance of an existing profile."""
         return await self.provision(context, config)
+
+    async def import_from_file(
+        self,
+        context: InjectionContext,
+        path: Path,
+        key: str,
+        config: Mapping[str, Any],
+    ):
+        """Import an in memory profile from file."""
+        raise NotImplementedError("Import not yet implemented on in memory wallets.")

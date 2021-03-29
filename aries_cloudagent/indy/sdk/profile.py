@@ -173,6 +173,7 @@ class IndySdkProfileManager(ProfileManager):
     async def import_from_file(
         self, context: InjectionContext, path: Path, key: str, config: Mapping[str, Any]
     ):
+        """Import IndySdk profile from file."""
         indy_config = IndyWalletConfig(config)
         opened = await indy_config.import_wallet(path, key)
         return IndySdkProfile(opened, context)

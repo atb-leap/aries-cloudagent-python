@@ -24,6 +24,10 @@ class MockManager(ProfileManager):
         self.calls.append(("open", context, config))
         return self.profile
 
+    async def import_from_file(self, context, path, key, config):
+        self.calls.append(("import_from_file", context, path, key, config))
+        return self.profile
+
 
 class TestWalletConfig(AsyncTestCase):
     async def setUp(self):
