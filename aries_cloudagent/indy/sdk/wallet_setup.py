@@ -255,3 +255,18 @@ class IndyOpenWallet:
             self.handle = None
             if self.config.auto_remove:
                 await self.config.remove_wallet()
+
+    async def export(self, path: Path, key: str, config: Mapping[str, Any] = None):
+        """Export an opened wallet."""
+        await indy.wallet.export_wallet(
+            handle=self.handle,
+            export_config_json=json.dumps(
+                {
+                    "path": path,
+                    "key": key,
+                    "key_derivation_method": config.get(
+                        "key_derivation_method", IndyWalletConfig.DEFAULT_KEY_DERIVATION
+                    ),
+                }
+            ),
+        )
