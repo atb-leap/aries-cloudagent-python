@@ -3,6 +3,7 @@
 import logging
 
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any, Mapping, Optional, Type
 
 from ..config.base import InjectionError
@@ -123,6 +124,16 @@ class ProfileManager(ABC):
         self, context: InjectionContext, config: Mapping[str, Any] = None
     ) -> Profile:
         """Open an instance of an existing profile."""
+
+    @abstractmethod
+    async def import_from_file(
+        self,
+        context: InjectionContext,
+        path: Path,
+        key: str,
+        config: Mapping[str, Any] = None,
+    ):
+        """Import profile from file."""
 
 
 class ProfileSession(ABC):

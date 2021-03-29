@@ -2,6 +2,7 @@
 
 import logging
 
+from pathlib import Path
 from typing import Any, Mapping
 from weakref import ref
 
@@ -167,4 +168,11 @@ class IndySdkProfileManager(ProfileManager):
         """Open an instance of an existing profile."""
         indy_config = IndyWalletConfig(config)
         opened = await indy_config.open_wallet()
+        return IndySdkProfile(opened, context)
+
+    async def import_from_file(
+        self, context: InjectionContext, path: Path, key: str, config: Mapping[str, Any]
+    ):
+        indy_config = IndyWalletConfig(config)
+        opened = await indy_config.import_wallet(path, key)
         return IndySdkProfile(opened, context)

@@ -3,6 +3,7 @@
 import json
 import logging
 
+from pathlib import Path
 from typing import Any, Mapping
 
 import indy.anoncreds
@@ -204,6 +205,26 @@ class IndyWalletConfig:
                 ) from x_indy
 
         return IndyOpenWallet(self, created, handle, master_secret_id)
+
+    async def import_wallet(self, path: Path, key: str) -> "IndyOpenWallet":
+        """Create wallet and import from exported wallet."""
+        try:
+            await indy.wallet.import_wallet(
+                config=json.dumps(self.wallet_config),
+                credentials=json.dumps(self.wallet_access),
+                import_config_json=json.dumps({"path": path, "key": key}),
+            )
+        except IndyError as x_indy:
+            if x_indy.error_code == ErrorCode.CommonIOError:
+                raise IndyErrorHandler.wrap_error(
+                    x_indy,
+                    f"Wallet export file {path} could not be opened",
+                    ProfileError,
+                ) from x_indy
+            # TODO Check for decrypt failed?
+            raise x_indy
+
+        return await self.open_wallet(created=True)
 
 
 class IndyOpenWallet:
