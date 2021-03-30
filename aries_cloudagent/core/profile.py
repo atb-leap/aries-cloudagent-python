@@ -106,17 +106,6 @@ class Profile(ABC):
             self.__class__.__name__, self.backend, self.name
         )
 
-    async def export(
-        self,
-        path: Path,
-        key: str = None,
-        config: Mapping[str, Any] = None,
-    ):
-        """Export profile to file."""
-        raise NotImplementedError(
-            "{} does not support export".format(self.__class__.__name__)
-        )
-
 
 class ProfileManager(ABC):
     """Handle provision and open for profile instances."""
@@ -136,7 +125,6 @@ class ProfileManager(ABC):
     ) -> Profile:
         """Open an instance of an existing profile."""
 
-    @abstractmethod
     async def import_from_file(
         self,
         context: InjectionContext,
@@ -145,6 +133,21 @@ class ProfileManager(ABC):
         config: Mapping[str, Any] = None,
     ):
         """Import profile from file."""
+        raise NotImplementedError(
+            "{} does not support import".format(self.__class__.__name__)
+        )
+
+    async def export_to_file(
+        self,
+        profile: Profile,
+        path: Path,
+        key: str = None,
+        config: Mapping[str, Any] = None,
+    ):
+        """Export profile to file."""
+        raise NotImplementedError(
+            "{} does not support export".format(self.__class__.__name__)
+        )
 
 
 class ProfileSession(ABC):
