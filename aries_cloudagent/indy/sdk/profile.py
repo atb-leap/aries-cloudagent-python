@@ -123,20 +123,6 @@ class IndySdkProfile(Profile):
         self.opened.config.auto_remove = True
         await self.close()
 
-    async def export(
-        self,
-        path: Path,
-        key: str = None,
-        config: Mapping[str, Any] = None,
-    ):
-        """Export profile to file."""
-        if key is None:
-            raise ValueError(
-                "{} requires a key for wallet export".format(self.__class__.__name__)
-            )
-
-        await self.opened.export(path, key, config)
-
 
 class IndySdkProfileSession(ProfileSession):
     """An active connection to the profile management backend."""
@@ -200,3 +186,18 @@ class IndySdkProfileManager(ProfileManager):
         indy_config = IndyWalletConfig(config)
         opened = await indy_config.import_wallet(path, key)
         return IndySdkProfile(opened, context)
+
+    async def export_to_file(
+        self,
+        profile: IndySdkProfile,
+        path: Path,
+        key: str = None,
+        config: Mapping[str, Any] = None,
+    ):
+        """Export profile to file."""
+        if key is None:
+            raise ValueError(
+                "{} requires a key for wallet export".format(self.__class__.__name__)
+            )
+
+        await profile.opened.export(path, key, config)
