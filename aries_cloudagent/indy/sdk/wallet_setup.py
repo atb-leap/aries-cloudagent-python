@@ -3,7 +3,6 @@
 import json
 import logging
 
-from pathlib import Path
 from typing import Any, Mapping
 
 import indy.anoncreds
@@ -11,7 +10,7 @@ import indy.did
 import indy.crypto
 import indy.wallet
 
-from indy.error import IndyError, ErrorCode
+from indy.error import IndyError, ErrorCode, CommonIOError
 
 from ...core.error import ProfileError, ProfileDuplicateError, ProfileNotFoundError
 from ...core.profile import Profile
@@ -206,7 +205,7 @@ class IndyWalletConfig:
 
         return IndyOpenWallet(self, created, handle, master_secret_id)
 
-    async def import_wallet(self, path: Path, key: str) -> "IndyOpenWallet":
+    async def import_wallet(self, path: str, key: str) -> "IndyOpenWallet":
         """Create wallet and import from exported wallet."""
         try:
             await indy.wallet.import_wallet(
@@ -256,17 +255,24 @@ class IndyOpenWallet:
             if self.config.auto_remove:
                 await self.config.remove_wallet()
 
-    async def export(self, path: Path, key: str, config: Mapping[str, Any] = None):
+    async def export(self, path: str, key: str, config: Mapping[str, Any] = None):
         """Export an opened wallet."""
-        await indy.wallet.export_wallet(
-            handle=self.handle,
-            export_config_json=json.dumps(
-                {
-                    "path": path,
-                    "key": key,
-                    "key_derivation_method": config.get(
-                        "key_derivation_method", IndyWalletConfig.DEFAULT_KEY_DERIVATION
-                    ),
-                }
-            ),
-        )
+        config = config or {}
+        try:
+            await indy.wallet.export_wallet(
+                handle=self.handle,
+                export_config_json=json.dumps(
+                    {
+                        "path": path,
+                        "key": key,
+                        "key_derivation_method": config.get(
+                            "key_derivation_method",
+                            IndyWalletConfig.DEFAULT_KEY_DERIVATION,
+                        ),
+                    }
+                ),
+            )
+        except CommonIOError as err:
+            raise IndyErrorHandler.wrap_error(
+                err, "Failed to read exported wallet", ProfileError
+            ) from err

@@ -183,8 +183,13 @@ class IndySdkProfileManager(ProfileManager):
                 "{} requires a key for wallet import".format(self.__class__.__name__)
             )
 
+        if not path.exists():
+            raise ProfileError(
+                "Cannot import from file; {} does not exist".format(path)
+            )
+
         indy_config = IndyWalletConfig(config)
-        opened = await indy_config.import_wallet(path, key)
+        opened = await indy_config.import_wallet(str(path), key)
         return IndySdkProfile(opened, context)
 
     async def export_to_file(
@@ -200,4 +205,4 @@ class IndySdkProfileManager(ProfileManager):
                 "{} requires a key for wallet export".format(self.__class__.__name__)
             )
 
-        await profile.opened.export(path, key, config)
+        await profile.opened.export(str(path), key, config)
